@@ -19,6 +19,7 @@ database container, a Drupal 8 container and a NGINX web server container.
   * [Initial Setup](#initial-setup)
   * [Interacting with the MySQL Container](#interacting-with-the-mysql-container)
   * [Stopping the Development Environment](#stopping-the-development-environment)
+  * [Restarting the Stopped Environments Again](#Restarting-the-Stopped-Environments-Again)
   * [Re-execute a Fresh Environment](#re-execute-a-fresh-environment)
 
 
@@ -29,7 +30,7 @@ must be availble on the host where the the environment is to be deployed.
 
 * Docker 
 
-# Docker Installing
+# Docker Installation   
 
 Install Docker Desktop for Windows. See [this page](https://docs.docker.com/docker-for-windows/install/)
 
@@ -121,7 +122,7 @@ Once after the steps are executed, there are a few initial setup steps the must 
    should be the value of `MYSQL_USER` and  the database password should be the
    value of `MYSQL_PASSWORD`. Under advanced options, set the "Host" option to `mysql`
    to match the name of the MySQL service.
-3. Enter whatver values you wish on the "Configure site" tab.
+3. Enter whatever values you wish on the "Configure site" tab.
 4. Once the Drupal installation is complete, you are now ready to use the Drupal environment.
 
 ## Interacting with the MySQL Container
@@ -165,8 +166,11 @@ It is also possible to connect to the database using the MySQL client within
 the MySQL container if no local client is available.
 ```bash
 # Get the ID of the MySQL container.
-$ docker ps -qf "ancestor=drupal-8-docker-dev_mysql"
+$ docker ps -qf "ancestor=fresh-drupal-8-docker_mysql"
 ab50798d19f6
+
+# Or get the container(which list all the containers)
+$ docker ps -a
 
 # Start the MySQL client within the container.
 $ docker exec -it ab50798d19f6 mysql --user=drupaluser --password=drupalpassword
@@ -200,8 +204,11 @@ easily dump databases within the MySQL container.
 
 ```bash
 # Get the ID of the MySQL container.
-$ docker ps -qf "ancestor=drupal-8-docker-dev_mysql"
+$ docker ps -qf "ancestor=fresh-drupal-8-docker_mysql"
 ab50798d19f6
+
+# Or get the container(which list all the containers)
+$ docker ps -a
 
 # Dump the database to the local host file drupaldb_dump.sql.
 $ docker exec -i ab50798d19f6 /usr/bin/mysqldump --user=drupaluser --password=drupalpassword drupaldb > drupaldb_dump.sql
@@ -210,18 +217,29 @@ $ docker exec -i ab50798d19f6 /usr/bin/mysqldump --user=drupaluser --password=dr
 $ docker exec -i ab50798d19f6 /usr/bin/mysqldump --user=drupaluser --password=drupalpassword drupaldb | tee drupaldb_dump.sql
 ```
 
-## Stopping the Development Environment
+## Stopping the Development Environments
 
-The Fresh Drupal 8 Docker development cluster may be stopped via `docker-compose`.
+The containers may be stopped via `docker-compose stop`.
 
 ```bash
-# Stopping the cluster.
+# Stopping the containers.
 $ docker-compose stop
 
 ```
 
+## Restarting the Stopped Environments Again
+
 Edits made to the Drupal site and changes made to the MySQL database will be 
-persisted across restarts of the Drupal 8 development cluster.
+persisted across restarts of the Drupal 8 development containers.
+```bash
+## Restart containers
+$ docker-compose up -d --build
+
+# Or it can split into two commends
+
+$ docker-compose build
+$ docker-compose up
+```
 
 ## Re-execute a Fresh Environment
 
@@ -231,7 +249,7 @@ restart them with new volumes. Be sure to copy data you wish to save before
 removing the persistent volumes.
 
 ```bash 
-# Standard Cluster
+# Standard containers
 # Stop all containers and delete persistent volumes.
 $ docker-compose down -v
 
